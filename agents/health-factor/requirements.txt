@@ -1,0 +1,4 @@
+bnbagent
+web3>=6.0
+fastapi
+uvicorn

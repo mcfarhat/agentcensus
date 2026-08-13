@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.next/
+data/*.db*
+data/census-*.json
+__pycache__/
+*.pyc
+.env
+.env.local
+venv/
+.DS_Store
