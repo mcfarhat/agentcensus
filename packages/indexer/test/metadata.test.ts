@@ -54,6 +54,23 @@ test("classifies the four judged categories", () => {
   assert.equal(classify(meta("generates poetry")), "other");
 });
 
+test("bare-label registrations recover the label as name (391 on testnet)", () => {
+  for (const label of ["sales-analyzer:analyst-01", "user-a2675504", "/avatars/cz.glb"]) {
+    const parsed = parseTokenUri(label);
+    assert.equal(parsed.kind, "bare-label");
+    assert.equal(parsed.metadata?.name, label);
+  }
+  // multi-line / control-char junk stays unparseable
+  assert.equal(parseTokenUri("line1\nline2").kind, "unparseable");
+});
+
+test("widened classifier catches risk-assessment and staking phrasing", () => {
+  const meta = (desc: string) => parseTokenUri(`{"name":"a","description":"${desc}"}`).metadata;
+  assert.equal(classify(meta("DeFi risk evaluation and scoring")), "monitoring");
+  assert.equal(classify(meta("stake BNB and restake rewards")), "yield");
+  assert.equal(classify(meta("places limit orders in a range")), "grid-trading");
+});
+
 test("sanitizes control characters for display", () => {
   assert.equal(sanitizeForDisplay("hello\x00\x1fworld"), "hello  world");
   assert.equal(sanitizeForDisplay(null), null);

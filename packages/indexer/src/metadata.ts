@@ -26,7 +26,7 @@ export interface AgentMetadata {
   raw: unknown;
 }
 
-export type UriKind = "onchain-json" | "https" | "ipfs" | "empty" | "unparseable";
+export type UriKind = "onchain-json" | "https" | "ipfs" | "bare-label" | "empty" | "unparseable";
 
 export interface ParsedUri {
   kind: UriKind;
@@ -62,7 +62,36 @@ export function parseTokenUri(uri: string | null): ParsedUri {
   if (trimmed.startsWith("https://") || trimmed.startsWith("http://"))
     return { kind: "https", externalUrl: trimmed, metadata: null };
 
+  // Bare-label registrations (verified common on testnet: "sales-analyzer:analyst-01",
+  // "user-a2675504", "/avatars/cz.glb"): a short single-line printable string with no
+  // scheme and no JSON. Not a parser failure — the registration simply carries no
+  // structured metadata. Recover the label as the display name.
+  if (isBareLabel(trimmed)) {
+    return {
+      kind: "bare-label",
+      externalUrl: null,
+      metadata: {
+        name: trimmed.slice(0, 120),
+        description: null,
+        services: [],
+        supportedTrusts: [],
+        active: null,
+        x402support: null,
+        raw: trimmed,
+      },
+    };
+  }
+
   return { kind: "unparseable", externalUrl: null, metadata: null };
+}
+
+function isBareLabel(s: string): boolean {
+  if (s.length === 0 || s.length > 200) return false;
+  if (s.includes("\n") || s.includes("\r")) return false;
+  // printable, no exotic control chars
+  // eslint-disable-next-line no-control-regex
+  if (/[\x00-\x1f\x7f]/.test(s)) return false;
+  return true;
 }
 
 export function parseMetadataJson(json: string): AgentMetadata | null {
@@ -103,10 +132,10 @@ const strArr = (v: unknown): string[] | undefined =>
  * always kept alongside for reproducibility.
  */
 const CATEGORY_PATTERNS: Array<[Category, RegExp]> = [
-  ["health-factor", /health\s*factor|liquidat|loan\s*(position|monitor)|collateral|venus|kinza|borrow/i],
-  ["grid-trading", /grid\s*(trad|bot|strateg)|range\s*order|market\s*mak|dca\b/i],
-  ["yield", /yield|apy|apr|staking|farm|vault|lp\s*(position|manag)|liquidity\s*provi/i],
-  ["monitoring", /monitor|watch|alert|track|rebalanc|portfolio|notif/i],
+  ["health-factor", /health\s*factor|liquidat|loan\s*(position|monitor)|collateral(?!ize)|venus|kinza|aave|lending\s*position|borrow/i],
+  ["grid-trading", /grid\s*(trad|bot|strateg)|range\s*order|market\s*mak|dca\b|limit\s*order/i],
+  ["yield", /yield|apy|apr|staking|stake\b|farm|vault|lp\s*(position|manag)|liquidity\s*provi|restak/i],
+  ["monitoring", /monitor|watch|alert|track|rebalanc|portfolio|notif|risk\s*(assess|evaluat|scor)|sentinel|surveill/i],
 ];
 
 export function classify(meta: AgentMetadata | null): Category {

@@ -1,8 +1,13 @@
 node_modules/
 dist/
 .next/
-data/*.db*
-data/census-*.json
+
+# local census data — never in git (mainnet db is ~200MB)
+packages/indexer/data/
+**/data/*.db
+**/data/*.db-*
+**/data/census-*.json
+
 __pycache__/
 *.pyc
 .env

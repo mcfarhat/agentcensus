@@ -65,11 +65,26 @@ export async function indexAgents(
   const ids: bigint[] = [];
   for (let id = from; id <= head; id++) ids.push(id);
 
+  // UPSERT that leaves probe_status / probe_latency_ms / last_probed_at untouched —
+  // a full metadata re-index must never erase liveness history.
   const insert = db.prepare(`
-    INSERT OR REPLACE INTO agents
+    INSERT INTO agents
       (agent_id, owner, uri_kind, external_url, name, description, category,
-       active_flag, x402_support, service_endpoints, metadata_json, indexed_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       active_flag, x402_support, service_endpoints, metadata_json, raw_uri, indexed_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(agent_id) DO UPDATE SET
+      owner = excluded.owner,
+      uri_kind = excluded.uri_kind,
+      external_url = excluded.external_url,
+      name = excluded.name,
+      description = excluded.description,
+      category = excluded.category,
+      active_flag = excluded.active_flag,
+      x402_support = excluded.x402_support,
+      service_endpoints = excluded.service_endpoints,
+      metadata_json = excluded.metadata_json,
+      raw_uri = excluded.raw_uri,
+      indexed_at = excluded.indexed_at
   `);
 
   const now = () => Math.floor(Date.now() / 1000);
@@ -86,10 +101,11 @@ export async function indexAgents(
       const uri = uriHex ? decodeString(uriHex) : null;
       const parsed = parseTokenUri(uri);
       const category = classify(parsed.metadata);
+      const rawUri = uri ? uri.slice(0, 2048) : null;
       const endpoints = parsed.metadata?.services
         ?.map((s) => s.endpoint)
         .filter((e): e is string => typeof e === "string" && e.length > 0);
-      return { id, owner, parsed, category, endpoints };
+      return { id, owner, parsed, category, endpoints, rawUri };
     });
     const tx = db.transaction(() => {
       for (const r of rows) {
@@ -105,6 +121,7 @@ export async function indexAgents(
           r.parsed.metadata?.x402support == null ? null : r.parsed.metadata.x402support ? 1 : 0,
           r.endpoints?.length ? JSON.stringify(r.endpoints) : null,
           r.parsed.metadata ? JSON.stringify(r.parsed.metadata.raw).slice(0, 16_384) : null,
+          r.rawUri,
           now(),
         );
       }

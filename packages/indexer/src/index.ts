@@ -12,6 +12,7 @@ import { writeFileSync } from "node:fs";
 import { CHAINS, type Network } from "./config.js";
 import { openDb } from "./db.js";
 import { indexAgents, findMaxAgentId } from "./registry.js";
+import { classify, parseTokenUri } from "./metadata.js";
 import { indexJobs, getJobCounter } from "./jobs.js";
 import { probeAgents } from "./prober.js";
 import { computeCensus } from "./census.js";
@@ -44,13 +45,21 @@ async function main(): Promise<void> {
   switch (cmd) {
     case "agents": {
       const db = openDb(net);
-      const res = await indexAgents(db, net, { onProgress: progress("agents") });
+      const fromArg = arg("from", "");
+      const res = await indexAgents(db, net, {
+        ...(fromArg ? { fromId: BigInt(fromArg) } : {}),
+        onProgress: progress("agents"),
+      });
       console.log(JSON.stringify({ network: net, ...res, head: res.head.toString() }));
       break;
     }
     case "jobs": {
       const db = openDb(net);
-      const res = await indexJobs(db, net, { onProgress: progress("jobs") });
+      const fromArg = arg("from", "");
+      const res = await indexJobs(db, net, {
+        ...(fromArg ? { fromId: BigInt(fromArg) } : {}),
+        onProgress: progress("jobs"),
+      });
       console.log(JSON.stringify({ network: net, indexed: res.indexed, total: res.total.toString() }));
       break;
     }
@@ -61,6 +70,49 @@ async function main(): Promise<void> {
         onProgress: progress("probe"),
       });
       console.log(JSON.stringify({ network: net, ...res }));
+      break;
+    }
+    case "reclassify": {
+      // Re-run URI parsing + classification over stored raw_uri — no RPC needed.
+      // Use after parser/classifier upgrades; rows without raw_uri are skipped
+      // (re-run `agents --from 1` once to backfill raw_uri on old databases).
+      const db = openDb(net);
+      const rows = db.prepare("SELECT agent_id, raw_uri FROM agents WHERE raw_uri IS NOT NULL").all() as Array<{
+        agent_id: number;
+        raw_uri: string;
+      }>;
+      const update = db.prepare(
+        `UPDATE agents SET uri_kind = ?, external_url = ?, name = ?, description = ?, category = ?,
+         active_flag = ?, x402_support = ?, service_endpoints = ?, metadata_json = ? WHERE agent_id = ?`,
+      );
+      let changed = 0;
+      const tx = db.transaction(() => {
+        for (const row of rows) {
+          const parsed = parseTokenUri(row.raw_uri);
+          const category = classify(parsed.metadata);
+          const endpoints = parsed.metadata?.services
+            ?.map((s) => s.endpoint)
+            .filter((e): e is string => typeof e === "string" && e.length > 0);
+          update.run(
+            parsed.kind,
+            parsed.externalUrl,
+            parsed.metadata?.name ?? null,
+            parsed.metadata?.description ?? null,
+            category,
+            parsed.metadata?.active == null ? null : parsed.metadata.active ? 1 : 0,
+            parsed.metadata?.x402support == null ? null : parsed.metadata.x402support ? 1 : 0,
+            endpoints?.length ? JSON.stringify(endpoints) : null,
+            parsed.metadata ? JSON.stringify(parsed.metadata.raw).slice(0, 16_384) : null,
+            row.agent_id,
+          );
+          changed++;
+        }
+      });
+      tx();
+      console.log(JSON.stringify({ network: net, reclassified: changed, skippedNoRawUri: undefined }));
+      const missing = db.prepare("SELECT COUNT(*) AS n FROM agents WHERE raw_uri IS NULL").get() as { n: number };
+      if (missing.n > 0)
+        console.error(`note: ${missing.n} rows have no raw_uri (indexed before this feature) — run: agents --network ${net} --from 1`);
       break;
     }
     case "census": {
@@ -98,7 +150,7 @@ async function main(): Promise<void> {
       break;
     }
     default:
-      console.error("usage: cli <agents|jobs|probe|census|verify> --network <mainnet|testnet>");
+      console.error("usage: cli <agents|jobs|probe|census|reclassify|verify> --network <mainnet|testnet> [--from N]");
       process.exit(1);
   }
 }

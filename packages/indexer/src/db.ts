@@ -26,6 +26,7 @@ export function openDb(net: Network, dataDir = "data"): Database.Database {
       service_endpoints TEXT,           -- JSON array of declared endpoints
       metadata_json TEXT,               -- full parsed metadata (sanitized at render, not here)
       indexed_at INTEGER NOT NULL,      -- unix seconds of indexing pass
+      raw_uri TEXT,                     -- tokenURI as returned (truncated), for debugging
       probe_status TEXT,                -- alive | degraded | dead | never-probed
       probe_latency_ms INTEGER,
       last_probed_at INTEGER
@@ -53,6 +54,12 @@ export function openDb(net: Network, dataDir = "data"): Database.Database {
       value TEXT NOT NULL
     );
   `);
+  // lightweight migration for databases created before raw_uri existed
+  try {
+    db.exec("ALTER TABLE agents ADD COLUMN raw_uri TEXT");
+  } catch {
+    /* column already exists */
+  }
   return db;
 }
 

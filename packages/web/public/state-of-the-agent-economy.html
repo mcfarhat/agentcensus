@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>State of the Agent Economy — AgentCensus</title>
+<meta name="description" content="266,533 AI agents are registered on BSC. We probed every one. 259 are alive. The first honest census of BNB Chain's agent economy.">
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfb; --page: #f9f9f7;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #898781;
+    --grid: #e1e0d9; --baseline: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --series-1: #2a78d6; --seq-250: #86b6ef; --seq-450: #2a78d6; --seq-650: #104281;
+    --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1: #1a1a19; --page: #0d0d0d;
+      --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+      --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+      --series-1: #3987e5; --seq-250: #6da7ec; --seq-450: #3987e5; --seq-650: #184f95;
+    }
+  }
+  * { margin: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--page); color: var(--ink-1); line-height: 1.5; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 48px 24px 64px; }
+  header .brand { font-weight: 700; letter-spacing: -0.01em; font-size: 15px; color: var(--ink-2); }
+  h1 { font-size: clamp(28px, 5vw, 42px); letter-spacing: -0.02em; line-height: 1.15; margin: 10px 0 6px; }
+  .sub { color: var(--ink-2); font-size: 15px; max-width: 620px; }
+  .stamp { color: var(--ink-3); font-size: 12.5px; margin-top: 10px; }
+  section { margin-top: 44px; }
+  h2 { font-size: 17px; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .note { color: var(--ink-2); font-size: 13.5px; margin-bottom: 16px; max-width: 640px; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .tile .k { font-size: clamp(26px, 4vw, 36px); font-weight: 700; letter-spacing: -0.02em; }
+  .tile .l { color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+  .tile .d { color: var(--ink-3); font-size: 12px; margin-top: 6px; }
+  .hero { border: 1px solid var(--border); background: var(--surface-1); border-radius: 10px; padding: 26px 22px; margin-top: 18px; }
+  .hero .k { font-size: clamp(44px, 9vw, 76px); font-weight: 700; letter-spacing: -0.03em; color: var(--series-1); line-height: 1; }
+  .hero .l { font-size: 15.5px; color: var(--ink-1); margin-top: 8px; font-weight: 600; }
+  .hero .d { font-size: 13.5px; color: var(--ink-2); margin-top: 4px; }
+  .barrow { margin: 14px 0 4px; }
+  .barrow .lab { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+  .barrow .lab .name { color: var(--ink-1); font-weight: 600; }
+  .barrow .lab .val { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .track { height: 14px; background: transparent; border-radius: 4px; position: relative; }
+  .track .base { position: absolute; inset: 0; border-bottom: 1px solid var(--baseline); }
+  .fill { position: absolute; top: 0; bottom: 1px; left: 0; border-radius: 0 4px 4px 0; min-width: 2px; }
+  .stack { display: flex; height: 22px; border-radius: 4px; overflow: hidden; gap: 2px; background: transparent; }
+  .stack > div { height: 100%; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 12.5px; color: var(--ink-2); }
+  .legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .statusdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; color: var(--ink-3); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 8px; border-bottom: 1px solid var(--grid); }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  td:first-child { font-variant-numeric: normal; }
+  .foot { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--grid); color: var(--ink-3); font-size: 12.5px; }
+  .foot a { color: var(--series-1); text-decoration: none; }
+  code { font-size: 12px; background: var(--surface-1); border: 1px solid var(--border); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">AGENTCENSUS</div>
+    <h1>State of the Agent Economy</h1>
+    <p class="sub">BNB Smart Chain has the largest on-chain AI agent registry in the world.
+    We indexed every ERC-8004 registration and probed every declared endpoint.
+    This is what's actually there.</p>
+    <p class="stamp">BSC Mainnet · census generated 2026-08-14 · every number reproducible from public chain data</p>
+  </header>
+
+  <div class="hero">
+    <div class="k">259</div>
+    <div class="l">agents actually alive — out of 266,533 registered</div>
+    <div class="d">0.097%. One in a thousand. "Alive" means the agent's declared service endpoint answers an ERC-8183 health check.</div>
+  </div>
+
+  <section>
+    <h2>The funnel from registration to reality</h2>
+    <p class="note">Registering an identity is nearly free. Running an agent isn't. The gap between the two is the whole story.</p>
+    <div class="tiles">
+      <div class="card tile"><div class="k">266,533</div><div class="l">registered identities</div><div class="d">ERC-8004 registry, sequential IDs 1 → 266,533</div></div>
+      <div class="card tile"><div class="k">1,973</div><div class="l">declare a service endpoint</div><div class="d">0.74% of registrations</div></div>
+      <div class="card tile"><div class="k">259</div><div class="l">respond as alive</div><div class="d">13% of declared endpoints · 0.097% of all</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Self-declared vs. verified</h2>
+    <p class="note">152,095 agents mark themselves <code>"active": true</code> in their own metadata. We asked their endpoints.</p>
+    <div class="card">
+      <div class="barrow">
+        <div class="lab"><span class="name">Claim to be active (self-declared)</span><span class="val">152,095 · 57.1%</span></div>
+        <div class="track"><div class="base"></div><div class="fill" style="width:100%; background: var(--seq-250);"></div></div>
+      </div>
+      <div class="barrow">
+        <div class="lab"><span class="name">Actually respond (probed)</span><span class="val">259 · 0.097%</span></div>
+        <div class="track"><div class="base"></div><div class="fill" style="width:0.6%; background: var(--seq-650);"></div></div>
+      </div>
+      <p class="note" style="margin: 10px 0 0;">Bars share one scale. The second bar is rendered at its true proportion — that thin sliver is the honest one.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Endpoint liveness, probed</h2>
+    <p class="note">Of the 1,973 agents that declare a service endpoint:</p>
+    <div class="card">
+      <div class="stack" role="img" aria-label="Liveness of 1,973 declared endpoints: 259 alive, 504 degraded, 1,210 dead">
+        <div style="width: calc(259/1973*100%); background: var(--good);" title="Alive: 259"></div>
+        <div style="width: calc(504/1973*100%); background: var(--serious);" title="Degraded: 504"></div>
+        <div style="width: calc(1210/1973*100%); background: var(--critical);" title="Dead: 1,210"></div>
+      </div>
+      <div class="legend">
+        <span><span class="statusdot" style="background: var(--good);"></span>✓ Alive · 259 (13.1%)</span>
+        <span><span class="statusdot" style="background: var(--serious);"></span>△ Degraded · 504 (25.5%)</span>
+        <span><span class="statusdot" style="background: var(--critical);"></span>✕ Dead · 1,210 (61.3%)</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>56,591 jobs. One provider.</h2>
+    <p class="note">The ERC-8183 commerce kernel has processed 56,591 jobs on mainnet — impressive, until you group by provider.
+    A single wallet accounts for <strong>99.25%</strong> of all volume (56,167 jobs at a median budget of $0.01,
+    hired by 32,780 distinct client wallets). The remaining 66 providers share 0.75%.</p>
+    <div class="card">
+      <div class="stack" role="img" aria-label="Job share: one provider 99.25 percent, all 66 others 0.75 percent">
+        <div style="width: 99.25%; background: var(--seq-450);" title="0xc0d7…7c8d — 56,167 jobs"></div>
+        <div style="width: 0.75%; background: var(--seq-250);" title="66 other providers — 424 jobs"></div>
+      </div>
+      <div class="legend">
+        <span><span class="sw" style="background: var(--seq-450);"></span>0xc0d7…7c8d — 56,167 jobs (99.25%)</span>
+        <span><span class="sw" style="background: var(--seq-250);"></span>All 66 other providers — 424 jobs (0.75%)</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The four categories that matter are nearly empty</h2>
+    <p class="note">BNB Chain's reference agent categories, counted across all 266,533 registrations by metadata classification:</p>
+    <div class="card">
+      <table>
+        <thead><tr><th>Category</th><th style="text-align:right;">Agents</th><th style="text-align:right;">Share of registry</th></tr></thead>
+        <tbody>
+          <tr><td>Monitoring / rebalancing</td><td style="text-align:right;">447</td><td style="text-align:right;">0.17%</td></tr>
+          <tr><td>Yield</td><td style="text-align:right;">343</td><td style="text-align:right;">0.13%</td></tr>
+          <tr><td>Health factor</td><td style="text-align:right;">15</td><td style="text-align:right;">0.006%</td></tr>
+          <tr><td>Grid trading</td><td style="text-align:right;">5</td><td style="text-align:right;">0.002%</td></tr>
+          <tr><td style="color: var(--ink-2);">Everything else / unclassifiable</td><td style="text-align:right; color: var(--ink-2);">265,723</td><td style="text-align:right; color: var(--ink-2);">99.7%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>And 27,169 providers are waiting to get paid</h2>
+    <p class="note">Nearly half of all mainnet jobs sit in SUBMITTED: work delivered, dispute window elapsed or elapsing, escrow
+    unreleased — because settlement is permissionless and nobody bothers to call it. (AgentCensus will.)</p>
+    <div class="tiles">
+      <div class="card tile"><div class="k">28,188</div><div class="l">completed &amp; settled</div></div>
+      <div class="card tile"><div class="k" style="color: var(--serious);">27,169</div><div class="l">submitted, never settled</div><div class="d">escrow releasable by anyone</div></div>
+      <div class="card tile"><div class="k">974</div><div class="l">open</div></div>
+      <div class="card tile"><div class="k">3</div><div class="l">rejected or expired</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Testnet tells the real developer story</h2>
+    <p class="note">BSC testnet is small but genuinely diverse — the opposite shape of mainnet's monoculture.</p>
+    <div class="card">
+      <table>
+        <thead><tr><th></th><th style="text-align:right;">Mainnet</th><th style="text-align:right;">Testnet</th></tr></thead>
+        <tbody>
+          <tr><td>Registered agents</td><td style="text-align:right;">266,533</td><td style="text-align:right;">1,818</td></tr>
+          <tr><td>Alive right now</td><td style="text-align:right;">259 (0.097%)</td><td style="text-align:right;">23 (1.3%)</td></tr>
+          <tr><td>Distinct job providers</td><td style="text-align:right;">67</td><td style="text-align:right;">104</td></tr>
+          <tr><td>Top provider's share of jobs</td><td style="text-align:right;">99.25%</td><td style="text-align:right;">11.1%</td></tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin: 10px 0 0;">More distinct providers ship real jobs on <em>testnet</em> than on mainnet — the builders are real; the mainnet numbers are noise on top of them.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Method</h2>
+    <p class="note" style="max-width: 720px;">
+      AgentCensus enumerates the ERC-8004 Identity Registry (<code>0x8004A169…a432</code>) by sequential ID, decodes each
+      <code>tokenURI</code> (85% store metadata on-chain), indexes every ERC-8183 job in the AgenticCommerce kernel
+      (<code>0xea4daa31…eba6</code>), and probes each declared endpoint's <code>/erc8183/health</code> with an
+      SSRF-hardened prober. Classification is a published, deterministic ruleset. Every number on this page can be
+      reproduced from public BSC data with the open-source indexer — no API keys, no trust required.
+    </p>
+  </section>
+
+  <div class="foot">
+    <strong>AgentCensus</strong> — the honest index of BNB Chain's agent economy ·
+    <a href="https://github.com/mcfarhat/agentcensus">github.com/mcfarhat/agentcensus</a> ·
+    agentcensus.xyz · Census 2026-08-14. Built for BNB Chain's Build the Era hackathon.
+  </div>
+</div>
+</body>
+</html>

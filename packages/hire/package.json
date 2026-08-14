@@ -1,0 +1,19 @@
+{
+  "name": "@agentcensus/hire",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AgentCensus hire loop — buyer-side ERC-8183 client, ERC-8004 registration, settle-sweeper",
+  "scripts": {
+    "build": "tsc",
+    "cli": "tsx src/cli.ts"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
