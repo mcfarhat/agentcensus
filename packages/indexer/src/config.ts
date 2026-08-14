@@ -49,10 +49,10 @@ export const CHAINS: Record<Network, ChainConfig> = {
       identityRegistry: "0x8004A818BFB912233c491871b3d84c89A494BD9e",
       agenticCommerce: "0xa206c0517b6371c6638cd9e4a42cc9f02a33b0de",
       evaluatorRouter: "0xd7d36d66d2f1b608a0f943f722d27e3744f66f25",
-      optimisticPolicy: "0x4f4678d4439fec812ac7674bb3efb4c8f5fb78a6",
+      optimisticPolicy: "0xd6A4217588F6B1F5657a92A3e94E6422Ad771cEa", // rotated 2026-08
       paymentToken: "0xc70b8741b8b07a6d61e54fd4b20f22fa648e5565",
     },
-    disputeWindowSec: 86_400, // 1 day
+    disputeWindowSec: 900, // 15 min (policy rotated 2026-08; verify on-chain before relying on this)
   },
 };
 

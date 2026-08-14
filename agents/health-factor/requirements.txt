@@ -1,4 +1,5 @@
-bnbagent
-web3>=6.0
+bnbagent>=0.4.2
 fastapi
 uvicorn
+web3>=6.0
+python-dotenv
