@@ -216,7 +216,10 @@ async function runHire(s: JudgeSession, endpoint: string): Promise<void> {
       body: JSON.stringify({
         task_description:
           "AgentCensus Judge Mode demo hire: perform your standard service once and submit the deliverable. Zero-budget verification job.",
-        terms: {},
+        terms: {
+          deliverables: "The agent's standard service output, submitted on-chain per ERC-8183",
+          quality_standards: "Deliverable produced from live data at time of execution",
+        },
       }),
       signal: AbortSignal.timeout(10_000),
     });

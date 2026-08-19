@@ -41,11 +41,18 @@ if errorlevel 1 goto ssh_fail
 ssh %SSHOPTS% root@%SERVER_IP% "DOMAIN=%DOMAIN% REPO_URL=%REPO_URL% bash /root/server-setup.sh"
 if errorlevel 1 goto setup_fail
 
-REM ---- 3. upload census databases ----
+REM ---- 3. seed census databases (ONLY if the server has none - the server's
+REM         hourly refresh keeps its copies fresher than local ones) ----
 echo.
-echo -- Uploading census databases...
+ssh %SSHOPTS% root@%SERVER_IP% "test -f /opt/agentcensus/packages/indexer/data/census-testnet.db"
+if not errorlevel 1 goto skip_dbs
+echo -- Seeding census databases (first deploy)...
 if exist packages\indexer\data\census-testnet.db scp %SSHOPTS% packages\indexer\data\census-testnet.db root@%SERVER_IP%:/opt/agentcensus/packages/indexer/data/
 if exist packages\indexer\data\census-mainnet.db scp %SSHOPTS% packages\indexer\data\census-mainnet.db root@%SERVER_IP%:/opt/agentcensus/packages/indexer/data/
+goto dbs_done
+:skip_dbs
+echo -- Server already has census databases - keeping them (fresher than local).
+:dbs_done
 
 REM ---- 4. upload agent .env and point its public URL at the domain ----
 if not exist agents\health-factor\.env goto no_env
