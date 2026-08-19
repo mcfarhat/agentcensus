@@ -19,7 +19,7 @@ const RPC = process.env.BSC_TESTNET_RPC ?? "https://data-seed-prebsc-1-s1.bnbcha
 const ADDR = {
   commerce: "0xa206c0517b6371c6638cd9e4a42cc9f02a33b0de" as Address,
   router: "0xd7d36d66d2f1b608a0f943f722d27e3744f66f25" as Address,
-  policy: "0xd6A4217588F6B1F5657a92A3e94E6422Ad771cEa" as Address, // rotated 2026-08
+  policy: "0xd6a4217588f6b1f5657a92a3e94e6422ad771cea" as Address, // rotated 2026-08
 };
 const COMMERCE_ABI = parseAbi([
   "function createJob(address provider, address evaluator, uint256 expiredAt, string description, address hook) returns (uint256)",
