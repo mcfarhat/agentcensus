@@ -52,6 +52,7 @@ echo "-- ufw: 22/80/443 open"
 
 # ---- 6. App user + repo ----
 id -u $APP_USER >/dev/null 2>&1 || useradd -m -s /bin/bash $APP_USER
+git config --global --add safe.directory "$APP_DIR" 2>/dev/null || true
 if [ -d "$APP_DIR/.git" ]; then
   git -C "$APP_DIR" pull --ff-only
 else
