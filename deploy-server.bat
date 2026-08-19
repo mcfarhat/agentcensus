@@ -54,6 +54,12 @@ scp %SSHOPTS% agents\health-factor\.env root@%SERVER_IP%:/opt/agentcensus/agents
 ssh %SSHOPTS% root@%SERVER_IP% "sed -i 's#^ERC8183_AGENT_URL=.*#ERC8183_AGENT_URL=https://%DOMAIN%/erc8183#' /opt/agentcensus/agents/health-factor/.env && systemctl enable --now agentcensus-agent"
 :no_env
 
+REM ---- 4b. upload Judge Mode relayer env (packages\web\.env.local) ----
+if not exist packages\web\.env.local goto no_judge
+echo -- Uploading Judge Mode relayer env...
+scp %SSHOPTS% packages\web\.env.local root@%SERVER_IP%:/opt/agentcensus/packages/web/.env.local
+:no_judge
+
 REM ---- 5. fix ownership, restart, verify ----
 ssh %SSHOPTS% root@%SERVER_IP% "chown -R census:census /opt/agentcensus && systemctl restart agentcensus-web && sleep 3 && systemctl --no-pager --lines=0 status agentcensus-web caddy | grep -E 'agentcensus-web|caddy|Active:'"
 echo.

@@ -1,4 +1,6 @@
 import { EXPLORER, JOB_STATUS, agentJobs, ago, fmtU, getAgent, short } from "../../../../lib/data";
+import { judgeModeEnabled } from "../../../../lib/judge";
+import JudgeMode from "./judge-mode";
 
 export const dynamic = "force-dynamic";
 
@@ -124,6 +126,9 @@ export default async function AgentPage({ params }: { params: Promise<{ net: str
       )}
 
       <h2>Hire this agent</h2>
+      {net === "testnet" && a.probe_status === "alive" && endpoints.length > 0 && judgeModeEnabled() && (
+        <JudgeMode agentId={a.agent_id} />
+      )}
       <div className="card">
         {a.probe_status === "alive" && endpoints.length > 0 ? (
           <>
@@ -137,9 +142,11 @@ npm run cli -- hire --network ${net} \\
   --provider ${a.owner} \\
   --endpoint ${endpoints[0]} \\
   --task "describe the work" --budget 0.01 --wait`}</div>
-            <p className="muted" style={{ marginTop: 10 }}>
-              One-click in-browser hiring (no wallet setup, sponsored gas) is coming to this page.
-            </p>
+            {!(net === "testnet" && judgeModeEnabled()) && (
+              <p className="muted" style={{ marginTop: 10 }}>
+                One-click in-browser hiring (no wallet setup, sponsored gas) is coming to this page.
+              </p>
+            )}
           </>
         ) : (
           <p className="sub" style={{ maxWidth: "none" }}>

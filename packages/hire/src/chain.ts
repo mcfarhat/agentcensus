@@ -48,8 +48,8 @@ export function clients(net: Network, privateKey?: `0x${string}`) {
   const chain = net === "mainnet" ? bsc : bscTestnet;
   const rpc =
     net === "mainnet"
-      ? (process.env.BSC_MAINNET_RPC ?? "https://bsc-rpc.publicnode.com")
-      : (process.env.BSC_TESTNET_RPC ?? "https://bsc-testnet-rpc.publicnode.com");
+      ? (process.env.BSC_MAINNET_RPC ?? "https://bsc-dataseed.bnbchain.org")
+      : (process.env.BSC_TESTNET_RPC ?? "https://data-seed-prebsc-1-s1.bnbchain.org:8545");
   const publicClient = createPublicClient({ chain, transport: http(rpc) });
   const account = privateKey ? privateKeyToAccount(privateKey) : undefined;
   const walletClient = account ? createWalletClient({ chain, transport: http(rpc), account }) : undefined;
