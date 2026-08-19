@@ -61,8 +61,9 @@ fi
 mkdir -p "$APP_DIR/packages/indexer/data"
 chown -R $APP_USER:$APP_USER "$APP_DIR"
 
-# ---- 7. Build indexer + web (as app user) ----
+# ---- 7. Build indexer + hire CLI + web (as app user) ----
 sudo -u $APP_USER bash -c "cd $APP_DIR/packages/indexer && npm install --no-audit --no-fund"
+sudo -u $APP_USER bash -c "cd $APP_DIR/packages/hire && npm install --no-audit --no-fund"
 sudo -u $APP_USER bash -c "cd $APP_DIR/packages/web && npm install --no-audit --no-fund && npm run build"
 
 # ---- 8. Python venv for the health-factor agent ----
