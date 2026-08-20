@@ -40,8 +40,9 @@ def on_job(job: dict) -> str:
     # If the description is a negotiation envelope (schema v1), pull the task out.
     try:
         parsed = parse_job_description(description)
-        if isinstance(parsed, dict) and parsed.get("task"):
-            task_text = parsed["task"]
+        t = parsed.get("task") if isinstance(parsed, dict) else getattr(parsed, "task", None)
+        if t:
+            task_text = t
     except Exception:
         pass  # plain-text description — use as-is
     logger.info(f"[on_job] job #{job.get('jobId') or job.get('id')}: task={task_text[:120]!r}")

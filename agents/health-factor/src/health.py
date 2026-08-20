@@ -87,7 +87,10 @@ def extract_account(task_text: str) -> tuple[str | None, str]:
     if text.startswith("{"):
         try:
             payload = json.loads(text)
-            return payload.get("account"), payload.get("network", network)
+            if payload.get("account"):
+                return payload.get("account"), payload.get("network", network)
+            # No top-level account key — fall through and scan the raw text
+            # (negotiation envelopes carry the address inside the task string).
         except json.JSONDecodeError:
             pass
     # scan for a 0x-address token anywhere in the text
@@ -102,8 +105,17 @@ def run_task(task_text: str) -> str:
     account, network = extract_account(task_text)
     if not account:
         # Generic hires (e.g. one-click demo jobs) carry no address — fall back
-        # to a configured demo account so the deliverable is always a real report.
+        # to a configured demo account, else the agent's own wallet address.
         account = os.environ.get("TARGET_ACCOUNT") or os.environ.get("WALLET_ADDRESS")
+    if not account:
+        try:
+            from eth_account import Account
+
+            key = os.environ.get("PRIVATE_KEY", "")
+            if key:
+                account = Account.from_key(key if key.startswith("0x") else "0x" + key).address
+        except Exception:
+            pass
     if not account:
         return json.dumps(
             {"error": "no account found in task; pass a 0x address or {\"account\": \"0x...\"}"}
