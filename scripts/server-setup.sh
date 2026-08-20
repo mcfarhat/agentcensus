@@ -66,8 +66,9 @@ sudo -u $APP_USER bash -c "cd $APP_DIR/packages/indexer && npm install --no-audi
 sudo -u $APP_USER bash -c "cd $APP_DIR/packages/hire && npm install --no-audit --no-fund"
 sudo -u $APP_USER bash -c "cd $APP_DIR/packages/web && npm install --no-audit --no-fund && npm run build"
 
-# ---- 8. Python venv for the health-factor agent ----
+# ---- 8. Python venvs for the agents ----
 sudo -u $APP_USER bash -c "cd $APP_DIR/agents/health-factor && python3 -m venv venv && venv/bin/pip install -q --upgrade pip && venv/bin/pip install -q -r requirements.txt"
+sudo -u $APP_USER bash -c "cd $APP_DIR/agents/grid-plan && python3 -m venv venv && venv/bin/pip install -q --upgrade pip && venv/bin/pip install -q -r requirements.txt"
 
 # ---- 9. systemd: web app ----
 cat > /etc/systemd/system/agentcensus-web.service <<EOF
@@ -124,6 +125,23 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
+# ---- 10c. systemd: Grid Planner agent (port 8005; enabled once its .env exists) ----
+cat > /etc/systemd/system/agentcensus-agent-grid.service <<EOF
+[Unit]
+Description=AgentCensus Grid Planner agent (ERC-8183 provider, trading)
+After=network.target
+
+[Service]
+User=$APP_USER
+WorkingDirectory=$APP_DIR/agents/grid-plan
+ExecStart=$APP_DIR/agents/grid-plan/venv/bin/python scripts/run_agent.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 # ---- 11. Hourly census refresh (incremental; CLI resumes from max id) ----
 touch /var/log/agentcensus-refresh.log
 chown $APP_USER:$APP_USER /var/log/agentcensus-refresh.log
@@ -137,6 +155,9 @@ $DOMAIN {
 	encode gzip
 	handle /erc8183m* {
 		reverse_proxy 127.0.0.1:8004
+	}
+	handle /erc8183g* {
+		reverse_proxy 127.0.0.1:8005
 	}
 	handle /erc8183* {
 		reverse_proxy 127.0.0.1:8003
@@ -166,6 +187,12 @@ if [ -f "$APP_DIR/agents/health-factor/.env.mainnet" ]; then
   echo "-- agent (mainnet): enabled"
 else
   echo "-- agent (mainnet): waiting for agents/health-factor/.env.mainnet"
+fi
+if [ -f "$APP_DIR/agents/grid-plan/.env" ]; then
+  systemctl enable --now agentcensus-agent-grid
+  echo "-- agent (grid): enabled"
+else
+  echo "-- agent (grid): waiting for agents/grid-plan/.env"
 fi
 
 echo ""

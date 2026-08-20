@@ -68,6 +68,13 @@ scp %SSHOPTS% agents\health-factor\.env.mainnet root@%SERVER_IP%:/opt/agentcensu
 ssh %SSHOPTS% root@%SERVER_IP% "chown census:census /opt/agentcensus/agents/health-factor/.env.mainnet && systemctl enable --now agentcensus-agent-mainnet && systemctl restart agentcensus-agent-mainnet"
 :no_mainnet_env
 
+REM ---- 4a3. upload Grid Planner .env and enable its service ----
+if not exist agents\grid-plan\.env goto no_grid_env
+echo -- Uploading grid agent .env...
+scp %SSHOPTS% agents\grid-plan\.env root@%SERVER_IP%:/opt/agentcensus/agents/grid-plan/.env
+ssh %SSHOPTS% root@%SERVER_IP% "chown census:census /opt/agentcensus/agents/grid-plan/.env && systemctl enable --now agentcensus-agent-grid && systemctl restart agentcensus-agent-grid"
+:no_grid_env
+
 REM ---- 4b. upload Judge Mode relayer env (packages\web\.env.local) ----
 if not exist packages\web\.env.local goto no_judge
 echo -- Uploading Judge Mode relayer env...
