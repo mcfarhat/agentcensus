@@ -101,6 +101,10 @@ def run_task(task_text: str) -> str:
     """Produce the deliverable content for a job's task text."""
     account, network = extract_account(task_text)
     if not account:
+        # Generic hires (e.g. one-click demo jobs) carry no address — fall back
+        # to a configured demo account so the deliverable is always a real report.
+        account = os.environ.get("TARGET_ACCOUNT") or os.environ.get("WALLET_ADDRESS")
+    if not account:
         return json.dumps(
             {"error": "no account found in task; pass a 0x address or {\"account\": \"0x...\"}"}
         )

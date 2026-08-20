@@ -51,7 +51,7 @@ for /l %%i in (1,1,%JOBS%) do (
   call npm run cli -- hire --network mainnet ^
     --provider %PROVIDER% ^
     --endpoint %ENDPOINT% ^
-    --task "AgentCensus mainnet demo job %%i: report Venus Protocol account health at current block and submit the signed report on-chain." ^
+    --task "AgentCensus mainnet demo job %%i: report Venus Protocol health for account 0x0475c8fa8ac94888eab9b4329b93c263708a9a07 at current block and submit the signed report on-chain." ^
     --budget 0 --wait
   if errorlevel 1 echo !! job %%i failed - continuing with the next one
 )
