@@ -17,6 +17,7 @@
  */
 import { negotiate, hire, getJob, settle, waitForSubmission } from "./hire.js";
 import { registerAgent } from "./register-agent.js";
+import { buildJobDescription } from "./describe.js";
 import { ABIS, ADDR, clients, type Network } from "./chain.js";
 
 function arg(name: string, fallback?: string): string {
@@ -51,9 +52,15 @@ async function main(): Promise<void> {
       const endpoint = arg("endpoint", "");
       let description = arg("task");
       if (endpoint) {
-        const quote = await negotiate(endpoint, { task_description: description });
+        const quote = await negotiate(endpoint, {
+          task_description: description,
+          terms: {
+            deliverables: arg("deliverables", "The agent's standard service output, submitted on-chain per ERC-8183"),
+            quality_standards: arg("quality", "Deliverable produced from live data at time of execution"),
+          },
+        });
         console.error("negotiated quote:", JSON.stringify(quote).slice(0, 400));
-        description = JSON.stringify(quote);
+        description = buildJobDescription(quote); // canonical — provider verifies byte-for-byte
       }
       const res = await hire({
         network: net,

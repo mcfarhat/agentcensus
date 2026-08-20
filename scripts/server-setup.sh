@@ -104,6 +104,26 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
+# ---- 10b. systemd: MAINNET agent instance (port 8004; enabled once .env.mainnet exists) ----
+# systemd env wins over load_dotenv (python-dotenv never overrides existing vars),
+# so the same code dir serves both networks with different EnvironmentFiles.
+cat > /etc/systemd/system/agentcensus-agent-mainnet.service <<EOF
+[Unit]
+Description=AgentCensus health-factor agent — MAINNET (ERC-8183 provider)
+After=network.target
+
+[Service]
+User=$APP_USER
+WorkingDirectory=$APP_DIR/agents/health-factor
+EnvironmentFile=$APP_DIR/agents/health-factor/.env.mainnet
+ExecStart=$APP_DIR/agents/health-factor/venv/bin/python scripts/run_agent.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 # ---- 11. Hourly census refresh (incremental; CLI resumes from max id) ----
 touch /var/log/agentcensus-refresh.log
 chown $APP_USER:$APP_USER /var/log/agentcensus-refresh.log
@@ -115,6 +135,9 @@ EOF
 cat > /etc/caddy/Caddyfile <<EOF
 $DOMAIN {
 	encode gzip
+	handle /erc8183m* {
+		reverse_proxy 127.0.0.1:8004
+	}
 	handle /erc8183* {
 		reverse_proxy 127.0.0.1:8003
 	}
@@ -134,9 +157,15 @@ systemctl restart caddy
 # Enable the agent only if its .env has been uploaded
 if [ -f "$APP_DIR/agents/health-factor/.env" ]; then
   systemctl enable --now agentcensus-agent
-  echo "-- agent: enabled"
+  echo "-- agent (testnet): enabled"
 else
-  echo "-- agent: waiting for agents/health-factor/.env (deploy script uploads it)"
+  echo "-- agent (testnet): waiting for agents/health-factor/.env (deploy script uploads it)"
+fi
+if [ -f "$APP_DIR/agents/health-factor/.env.mainnet" ]; then
+  systemctl enable --now agentcensus-agent-mainnet
+  echo "-- agent (mainnet): enabled"
+else
+  echo "-- agent (mainnet): waiting for agents/health-factor/.env.mainnet"
 fi
 
 echo ""

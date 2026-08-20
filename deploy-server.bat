@@ -61,6 +61,13 @@ scp %SSHOPTS% agents\health-factor\.env root@%SERVER_IP%:/opt/agentcensus/agents
 ssh %SSHOPTS% root@%SERVER_IP% "sed -i 's#^ERC8183_AGENT_URL=.*#ERC8183_AGENT_URL=https://%DOMAIN%/erc8183#' /opt/agentcensus/agents/health-factor/.env && systemctl enable --now agentcensus-agent"
 :no_env
 
+REM ---- 4a2. upload MAINNET agent .env.mainnet and enable its service ----
+if not exist agents\health-factor\.env.mainnet goto no_mainnet_env
+echo -- Uploading mainnet agent .env.mainnet...
+scp %SSHOPTS% agents\health-factor\.env.mainnet root@%SERVER_IP%:/opt/agentcensus/agents/health-factor/.env.mainnet
+ssh %SSHOPTS% root@%SERVER_IP% "chown census:census /opt/agentcensus/agents/health-factor/.env.mainnet && systemctl enable --now agentcensus-agent-mainnet && systemctl restart agentcensus-agent-mainnet"
+:no_mainnet_env
+
 REM ---- 4b. upload Judge Mode relayer env (packages\web\.env.local) ----
 if not exist packages\web\.env.local goto no_judge
 echo -- Uploading Judge Mode relayer env...

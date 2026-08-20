@@ -1,0 +1,25 @@
+# AgentCensus Health Factor agent — MAINNET instance. Copy to .env.mainnet and fill in.
+# NEVER commit the real .env.mainnet.
+#
+# Runs alongside the testnet instance on the server (port 8004, path /erc8183m).
+# Same agent wallet as testnet (it owns mainnet identity #270183) — it needs a
+# small amount of REAL BNB for submit() gas (~0.0005 BNB per demo job).
+
+# --- Wallet (required) — the AGENT's wallet, same key as .env ---
+WALLET_PASSWORD=change-me
+PRIVATE_KEY=0x...
+
+# --- Network: MAINNET ---
+NETWORK=bsc-mainnet
+RPC_URL=https://bsc-dataseed.bnbchain.org
+
+# --- Public URL of THIS instance (Caddy routes /erc8183m to port 8004) ---
+ERC8183_AGENT_URL=https://agentcensus.xyz/erc8183m
+
+# --- Price: 0 for the demo-seeding phase ---
+ERC8183_SERVICE_PRICE=0
+# ERC8183_FUNDED_POLL_INTERVAL=30
+
+# --- Server ---
+PORT=8004
+AGENT_NAME=AgentCensus Health Factor Monitor
