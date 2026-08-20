@@ -67,7 +67,17 @@ export async function hire(opts: HireOptions): Promise<HireResult> {
   };
 
   // 1. createJob — evaluator/hook = EvaluatorRouter (per SDK reference flow)
-  const expiredAt = BigInt(Math.floor(Date.now() / 1000) + (opts.expiryHours ?? 48) * 3600);
+  // Expiry MUST exceed the policy's dispute window: providers compute their
+  // submission deadline as (expiredAt - disputeWindow), so an expiry inside the
+  // window means the deadline is already in the past and the job is skipped.
+  // (Testnet window: 900s — invisible. Mainnet window: 7 DAYS — fatal.)
+  const disputeWindow = (await publicClient.readContract({
+    address: a.policy,
+    abi: ABIS.policy,
+    functionName: "disputeWindow",
+  })) as bigint;
+  const expiredAt =
+    BigInt(Math.floor(Date.now() / 1000)) + disputeWindow + BigInt((opts.expiryHours ?? 48) * 3600);
   const createHash = await walletClient.writeContract({
     address: a.commerce,
     abi: ABIS.commerce,

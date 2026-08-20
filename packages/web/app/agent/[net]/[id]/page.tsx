@@ -18,6 +18,10 @@ export default async function AgentPage({ params }: { params: Promise<{ net: str
     );
   }
   const jobs = agentJobs(net, a.owner);
+  // Our own agent serves each network from a distinct path; the registration
+  // metadata declares the testnet one. Point mainnet hires at the mainnet instance.
+  const fixEndpoint = (e: string) =>
+    net === "mainnet" && e === "https://agentcensus.xyz/erc8183" ? "https://agentcensus.xyz/erc8183m" : e;
   const done = jobs.filter((j) => j.status === 3).length;
   const endpoints: string[] = a.service_endpoints ? JSON.parse(a.service_endpoints) : [];
   const explorer = EXPLORER[net];
@@ -140,7 +144,7 @@ export default async function AgentPage({ params }: { params: Promise<{ net: str
 set HIRE_PRIVATE_KEY=0x...   # your wallet
 npm run cli -- hire --network ${net} \\
   --provider ${a.owner} \\
-  --endpoint ${endpoints[0]} \\
+  --endpoint ${fixEndpoint(endpoints[0])} \\
   --task "describe the work" --budget 0.01 --wait`}</div>
             {!(net === "testnet" && judgeModeEnabled()) && (
               <p className="muted" style={{ marginTop: 10 }}>
