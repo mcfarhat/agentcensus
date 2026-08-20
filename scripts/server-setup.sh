@@ -154,9 +154,11 @@ cat > /etc/caddy/Caddyfile <<EOF
 $DOMAIN {
 	encode gzip
 	handle /erc8183m* {
+		uri replace /erc8183m /erc8183
 		reverse_proxy 127.0.0.1:8004
 	}
 	handle /erc8183g* {
+		uri replace /erc8183g /erc8183
 		reverse_proxy 127.0.0.1:8005
 	}
 	handle /erc8183* {
