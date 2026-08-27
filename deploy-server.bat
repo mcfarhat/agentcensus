@@ -75,6 +75,20 @@ scp %SSHOPTS% agents\grid-plan\.env root@%SERVER_IP%:/opt/agentcensus/agents/gri
 ssh %SSHOPTS% root@%SERVER_IP% "chown census:census /opt/agentcensus/agents/grid-plan/.env && systemctl enable --now agentcensus-agent-grid && systemctl restart agentcensus-agent-grid"
 :no_grid_env
 
+REM ---- 4a4. upload Rebalance Planner .env and enable its service ----
+if not exist agents\rebalance-plan\.env goto no_rebalance_env
+echo -- Uploading rebalance agent .env...
+scp %SSHOPTS% agents\rebalance-plan\.env root@%SERVER_IP%:/opt/agentcensus/agents/rebalance-plan/.env
+ssh %SSHOPTS% root@%SERVER_IP% "chown census:census /opt/agentcensus/agents/rebalance-plan/.env && systemctl enable --now agentcensus-agent-rebalance && systemctl restart agentcensus-agent-rebalance"
+:no_rebalance_env
+
+REM ---- 4a5. upload Yield Scanner .env and enable its service ----
+if not exist agents\yield-scan\.env goto no_yield_env
+echo -- Uploading yield agent .env...
+scp %SSHOPTS% agents\yield-scan\.env root@%SERVER_IP%:/opt/agentcensus/agents/yield-scan/.env
+ssh %SSHOPTS% root@%SERVER_IP% "chown census:census /opt/agentcensus/agents/yield-scan/.env && systemctl enable --now agentcensus-agent-yield && systemctl restart agentcensus-agent-yield"
+:no_yield_env
+
 REM ---- 4b. upload Judge Mode relayer env (packages\web\.env.local) ----
 if not exist packages\web\.env.local goto no_judge
 echo -- Uploading Judge Mode relayer env...

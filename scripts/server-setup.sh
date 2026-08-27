@@ -69,6 +69,8 @@ sudo -u $APP_USER bash -c "cd $APP_DIR/packages/web && npm install --no-audit --
 # ---- 8. Python venvs for the agents ----
 sudo -u $APP_USER bash -c "cd $APP_DIR/agents/health-factor && python3 -m venv venv && venv/bin/pip install -q --upgrade pip && venv/bin/pip install -q -r requirements.txt"
 sudo -u $APP_USER bash -c "cd $APP_DIR/agents/grid-plan && python3 -m venv venv && venv/bin/pip install -q --upgrade pip && venv/bin/pip install -q -r requirements.txt"
+sudo -u $APP_USER bash -c "cd $APP_DIR/agents/rebalance-plan && python3 -m venv venv && venv/bin/pip install -q --upgrade pip && venv/bin/pip install -q -r requirements.txt"
+sudo -u $APP_USER bash -c "cd $APP_DIR/agents/yield-scan && python3 -m venv venv && venv/bin/pip install -q --upgrade pip && venv/bin/pip install -q -r requirements.txt"
 
 # ---- 9. systemd: web app ----
 cat > /etc/systemd/system/agentcensus-web.service <<EOF
@@ -142,6 +144,40 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
+# ---- 10d. systemd: Rebalance Planner agent (port 8006) ----
+cat > /etc/systemd/system/agentcensus-agent-rebalance.service <<EOF
+[Unit]
+Description=AgentCensus Rebalance Planner agent (ERC-8183 provider, rebalancing)
+After=network.target
+
+[Service]
+User=$APP_USER
+WorkingDirectory=$APP_DIR/agents/rebalance-plan
+ExecStart=$APP_DIR/agents/rebalance-plan/venv/bin/python scripts/run_agent.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# ---- 10e. systemd: Yield Scanner agent (port 8007) ----
+cat > /etc/systemd/system/agentcensus-agent-yield.service <<EOF
+[Unit]
+Description=AgentCensus Yield Scanner agent (ERC-8183 provider, yield)
+After=network.target
+
+[Service]
+User=$APP_USER
+WorkingDirectory=$APP_DIR/agents/yield-scan
+ExecStart=$APP_DIR/agents/yield-scan/venv/bin/python scripts/run_agent.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 # ---- 11. Hourly census refresh (incremental; CLI resumes from max id) ----
 touch /var/log/agentcensus-refresh.log
 chown $APP_USER:$APP_USER /var/log/agentcensus-refresh.log
@@ -160,6 +196,14 @@ $DOMAIN {
 	handle /erc8183g* {
 		uri replace /erc8183g /erc8183
 		reverse_proxy 127.0.0.1:8005
+	}
+	handle /erc8183r* {
+		uri replace /erc8183r /erc8183
+		reverse_proxy 127.0.0.1:8006
+	}
+	handle /erc8183y* {
+		uri replace /erc8183y /erc8183
+		reverse_proxy 127.0.0.1:8007
 	}
 	handle /erc8183* {
 		reverse_proxy 127.0.0.1:8003
@@ -195,6 +239,18 @@ if [ -f "$APP_DIR/agents/grid-plan/.env" ]; then
   echo "-- agent (grid): enabled"
 else
   echo "-- agent (grid): waiting for agents/grid-plan/.env"
+fi
+if [ -f "$APP_DIR/agents/rebalance-plan/.env" ]; then
+  systemctl enable --now agentcensus-agent-rebalance
+  echo "-- agent (rebalance): enabled"
+else
+  echo "-- agent (rebalance): waiting for agents/rebalance-plan/.env"
+fi
+if [ -f "$APP_DIR/agents/yield-scan/.env" ]; then
+  systemctl enable --now agentcensus-agent-yield
+  echo "-- agent (yield): enabled"
+else
+  echo "-- agent (yield): waiting for agents/yield-scan/.env"
 fi
 
 echo ""

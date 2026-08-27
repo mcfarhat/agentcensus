@@ -1,0 +1,23 @@
+# AgentCensus Rebalance Planner — copy this file to agents\rebalance-plan\.env and fill in.
+# NEVER commit the real .env.
+#
+# Use a NEW fresh testnet wallet for this agent (its own ERC-8004 identity),
+# funded with ~0.01 tBNB for registration + submit gas.
+
+# --- Wallet (required) — the REBALANCE agent's own fresh testnet key ---
+WALLET_PASSWORD=change-me
+PRIVATE_KEY=0x...
+
+# --- Network ---
+NETWORK=bsc-testnet
+RPC_URL=https://data-seed-prebsc-1-s1.bnbchain.org:8545
+
+# --- Public URL of this instance (Caddy routes /erc8183r to port 8006) ---
+ERC8183_AGENT_URL=https://agentcensus.xyz/erc8183r
+
+# --- Price: 0 during the demo phase ---
+ERC8183_SERVICE_PRICE=0
+
+# --- Server ---
+PORT=8006
+AGENT_NAME=AgentCensus Rebalance Planner
