@@ -20,6 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <a href="/agents">Agents</a>
               <a href="/jobs">Jobs</a>
               <a href="/state-of-the-agent-economy.html">Census</a>
+              <a href="/judges">For Judges</a>
               <a href="https://github.com/mcfarhat/agentcensus">GitHub</a>
             </nav>
           </div>

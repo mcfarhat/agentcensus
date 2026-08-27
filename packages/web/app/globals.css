@@ -242,3 +242,18 @@ td {
   color: var(--ink-3);
   font-size: 12.5px;
 }
+
+/* link-buttons (judges page etc.) */
+.btn {
+  display: inline-block;
+  margin: 4px 6px 4px 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff !important;
+  text-decoration: none;
+}
+.btn:hover { filter: brightness(1.08); }

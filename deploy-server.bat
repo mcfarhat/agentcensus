@@ -58,7 +58,7 @@ REM ---- 4. upload agent .env and point its public URL at the domain ----
 if not exist agents\health-factor\.env goto no_env
 echo -- Uploading agent .env...
 scp %SSHOPTS% agents\health-factor\.env root@%SERVER_IP%:/opt/agentcensus/agents/health-factor/.env
-ssh %SSHOPTS% root@%SERVER_IP% "sed -i 's#^ERC8183_AGENT_URL=.*#ERC8183_AGENT_URL=https://%DOMAIN%/erc8183#' /opt/agentcensus/agents/health-factor/.env && systemctl enable --now agentcensus-agent"
+ssh %SSHOPTS% root@%SERVER_IP% "sed -i 's#^ERC8183_AGENT_URL=.*#ERC8183_AGENT_URL=https://%DOMAIN%/erc8183#' /opt/agentcensus/agents/health-factor/.env && systemctl enable --now agentcensus-agent && systemctl restart agentcensus-agent"
 :no_env
 
 REM ---- 4a2. upload MAINNET agent .env.mainnet and enable its service ----
