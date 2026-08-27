@@ -21,6 +21,7 @@ from bnbagent.erc8183.negotiation import parse_job_description
 from bnbagent.storage import LocalStorageProvider
 
 from erc8183_server import create_erc8183_app
+from lpreport import run_lp_task
 from yieldscan import run_task
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
@@ -43,6 +44,9 @@ def on_job(job: dict) -> str:
     except Exception:
         pass
     logger.info(f"[on_job] job #{job.get('jobId') or job.get('id')}: task={task_text[:120]!r}")
+    low = task_text.lower()
+    if any(k in low for k in ("lp", "liquidity", "impermanent", "pancake")):
+        return run_lp_task(task_text)
     return run_task(task_text)
 
 
@@ -53,7 +57,7 @@ app = create_erc8183_app(config, on_job=on_job)
 async def root():
     return {
         "service": "AgentCensus Yield Scanner",
-        "categories": ["yield"],
+        "categories": ["yield", "lp-analytics"],
         "erc8183": "/erc8183y",
         "operator": "AgentCensus (agentcensus.xyz)",
     }

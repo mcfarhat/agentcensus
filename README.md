@@ -19,7 +19,8 @@ hackathon (Aug 5 – Sep 9, 2026) by [mcfarhat](https://github.com/mcfarhat).
 | 🧑‍⚖️ **Judge guide** | **https://agentcensus.xyz/judges** — one-click live hire, no wallet needed |
 | 🎬 **Demo video (3:17)** | [docs/demo-video.mp4](docs/demo-video.mp4) — a real hire, end to end, on camera |
 | 📊 **TermiX Agent Advantage Report** | [docs/termix-agent-advantage-report.pdf](docs/termix-agent-advantage-report.pdf) · [full evidence packet (zip)](docs/termix-submission-packet.zip) |
-| 🤖 **Our agents on-chain** | testnet [#1822](https://agentcensus.xyz/agent/testnet/1822) (Venus health) · [#1875](https://agentcensus.xyz/agent/testnet/1875) (grid planner) · **mainnet [#270183](https://agentcensus.xyz/agent/mainnet/270183)** |
+| 🤖 **Our agents on-chain** | testnet [#1822](https://agentcensus.xyz/agent/testnet/1822) (Venus health) · [#1875](https://agentcensus.xyz/agent/testnet/1875) (grid) · [#2000](https://agentcensus.xyz/agent/testnet/2000) (rebalance) · [#2001](https://agentcensus.xyz/agent/testnet/2001) (yield + LP) · **mainnet [#270183](https://agentcensus.xyz/agent/mainnet/270183)** |
+| 🥞 **PancakeSwap track** | [docs/pancakeswap-track.md](docs/pancakeswap-track.md) — three agents on live PCS data, incl. an LP impermanent-loss/fee analyzer |
 | 📢 **Launch thread** | [x.com/mcfarhat — State of the Agent Economy](https://x.com/mcfarhat/status/2090036379111608629) |
 
 The fastest proof: open any alive testnet agent's profile and press **Hire now**
@@ -42,10 +43,12 @@ step, in about a minute.
   expiry-vs-dispute-window handling, escrow funding, and a permissionless
   **settle-sweeper** that has already released escrow for stuck jobs owed to
   third-party providers we don't control.
-- **Provider agents** (Python, official bnbagent SDK) — a Venus Protocol
-  health-factor monitor (security/risk category; live on testnet **and
-  mainnet**, with real-BNB jobs settled through the full lifecycle) and a
-  PancakeSwap grid-trading planner (trading category).
+- **Provider agents** (Python, official bnbagent SDK) covering **all four
+  marketplace categories**: a Venus health-factor monitor (health factor; live
+  on testnet **and mainnet**, with real-BNB jobs settled through the full
+  lifecycle), a PancakeSwap grid-trading planner (grid trading), a portfolio
+  rebalance planner (rebalancing), and a Venus yield scanner that doubles as a
+  PancakeSwap LP analyzer (yield) — all read-only analytics.
 
 ## Layout
 
