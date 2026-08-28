@@ -215,7 +215,11 @@ async function runHire(s: JudgeSession, endpoint: string): Promise<void> {
   const touch = (phase: JudgeSession["phase"]) => { s.phase = phase; s.updatedAt = Date.now(); };
   try {
     // 1. negotiate (off-chain)
-    const negRes = await fetch(new URL("/erc8183/negotiate", endpoint).toString(), {
+    // NOTE: endpoint carries the agent's public prefix (e.g. /erc8183r for the
+    // rebalance agent). new URL("/erc8183/negotiate", endpoint) would DROP that
+    // prefix and negotiate with the wrong agent — whose quote signature the real
+    // provider then rejects (quote_invalid). Append, never replace.
+    const negRes = await fetch(`${endpoint.replace(/\/+$/, "")}/negotiate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
