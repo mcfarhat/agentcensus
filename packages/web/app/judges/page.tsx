@@ -10,6 +10,8 @@ export const metadata = {
 
 const DEMO_AGENT_TESTNET = 1822;
 const GRID_AGENT_TESTNET = 1875;
+const REBALANCE_AGENT_TESTNET = 2000;
+const YIELD_AGENT_TESTNET = 2001;
 const DEMO_AGENT_MAINNET = 270183;
 
 export default function Judges() {
@@ -38,11 +40,19 @@ export default function Judges() {
           </a>{" "}
           <a className="btn" href={`/agent/testnet/${GRID_AGENT_TESTNET}`}>
             ⚡ Judge Mode: Grid Planner (#{GRID_AGENT_TESTNET})
+          </a>{" "}
+          <a className="btn" href={`/agent/testnet/${REBALANCE_AGENT_TESTNET}`}>
+            ⚡ Judge Mode: Rebalance Planner (#{REBALANCE_AGENT_TESTNET})
+          </a>{" "}
+          <a className="btn" href={`/agent/testnet/${YIELD_AGENT_TESTNET}`}>
+            ⚡ Judge Mode: Yield Scanner + LP Analyzer (#{YIELD_AGENT_TESTNET})
           </a>
         </p>
         <p className="muted">
           Rate-limited to one sponsored hire per minute per visitor. The hired agent computes a real deliverable from
-          live chain data (Venus Protocol risk report / PancakeSwap grid plan) and submits it on-chain.
+          live chain data — Venus risk report, PancakeSwap grid plan, portfolio rebalance plan, or Venus yield scan —
+          and submits it on-chain. All four marketplace categories (health factor, grid trading, rebalancing, yield)
+          are covered by live agents.
         </p>
       </div>
 
@@ -90,10 +100,17 @@ export default function Judges() {
         <p className="sub" style={{ maxWidth: "none" }}>
           Everything is open source in one repo: the indexer, the probe/census pipeline, this web app, the Judge Mode
           relayer, the open hire CLI anyone can use to hire any listed agent (testnet or mainnet), the settle-sweeper,
-          and both provider agents.
+          all four provider agents, and the Altana scoped-session hiring CLI (a session key with an on-chain 5 $U/day
+          cap hired and settled a real job — full write-up with transaction evidence in the repo&apos;s docs).
         </p>
         <p style={{ marginTop: 10 }}>
-          <a className="btn" href="https://github.com/mcfarhat/agentcensus">github.com/mcfarhat/agentcensus</a>
+          <a className="btn" href="https://github.com/mcfarhat/agentcensus">github.com/mcfarhat/agentcensus</a>{" "}
+          <a className="btn" href="https://github.com/mcfarhat/agentcensus/blob/main/docs/pancakeswap-track.md">
+            🥞 PancakeSwap track
+          </a>{" "}
+          <a className="btn" href="https://github.com/mcfarhat/agentcensus/blob/main/docs/altana-track.md">
+            ⚡ Altana track
+          </a>
         </p>
       </div>
 
@@ -114,7 +131,9 @@ export default function Judges() {
           </li>
           <li>
             Our agents: testnet <a href={`/agent/testnet/${DEMO_AGENT_TESTNET}`}>#{DEMO_AGENT_TESTNET}</a> /{" "}
-            <a href={`/agent/testnet/${GRID_AGENT_TESTNET}`}>#{GRID_AGENT_TESTNET}</a>, mainnet{" "}
+            <a href={`/agent/testnet/${GRID_AGENT_TESTNET}`}>#{GRID_AGENT_TESTNET}</a> /{" "}
+            <a href={`/agent/testnet/${REBALANCE_AGENT_TESTNET}`}>#{REBALANCE_AGENT_TESTNET}</a> /{" "}
+            <a href={`/agent/testnet/${YIELD_AGENT_TESTNET}`}>#{YIELD_AGENT_TESTNET}</a>, mainnet{" "}
             <a href={`/agent/mainnet/${DEMO_AGENT_MAINNET}`}>#{DEMO_AGENT_MAINNET}</a> (wallet{" "}
             <a href="https://bscscan.com/address/0x0475c8fa8ac94888eab9b4329b93c263708a9a07">
               <code>0x0475C8Fa…8A9A07</code>

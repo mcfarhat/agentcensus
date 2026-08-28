@@ -21,6 +21,7 @@ hackathon (Aug 5 – Sep 9, 2026) by [mcfarhat](https://github.com/mcfarhat).
 | 📊 **TermiX Agent Advantage Report** | [docs/termix-agent-advantage-report.pdf](docs/termix-agent-advantage-report.pdf) · [full evidence packet (zip)](docs/termix-submission-packet.zip) |
 | 🤖 **Our agents on-chain** | testnet [#1822](https://agentcensus.xyz/agent/testnet/1822) (Venus health) · [#1875](https://agentcensus.xyz/agent/testnet/1875) (grid) · [#2000](https://agentcensus.xyz/agent/testnet/2000) (rebalance) · [#2001](https://agentcensus.xyz/agent/testnet/2001) (yield + LP) · **mainnet [#270183](https://agentcensus.xyz/agent/mainnet/270183)** |
 | 🥞 **PancakeSwap track** | [docs/pancakeswap-track.md](docs/pancakeswap-track.md) — three agents on live PCS data, incl. an LP impermanent-loss/fee analyzer |
+| ⚡ **Altana track** | [docs/altana-track.md](docs/altana-track.md) — a Keystore-registered session key with an on-chain 5 $U/day cap hired, settled and refunded real ERC-8183 jobs (job #703 COMPLETED) |
 | 📢 **Launch thread** | [x.com/mcfarhat — State of the Agent Economy](https://x.com/mcfarhat/status/2090036379111608629) |
 
 The fastest proof: open any alive testnet agent's profile and press **Hire now**
@@ -43,6 +44,11 @@ step, in about a minute.
   expiry-vs-dispute-window handling, escrow funding, and a permissionless
   **settle-sweeper** that has already released escrow for stuck jobs owed to
   third-party providers we don't control.
+- **Altana scoped-session CLI** (`packages/altana`) — an Altana smart wallet
+  grants a session key a narrow on-chain mandate (contract allowlist, 5 $U/day
+  spend cap, 7-day expiry, Keystore-registered) and that key runs full
+  hire → deliver → settle lifecycles against our agents. Four ecosystem bugs
+  found and documented along the way.
 - **Provider agents** (Python, official bnbagent SDK) covering **all four
   marketplace categories**: a Venus health-factor monitor (health factor; live
   on testnet **and mainnet**, with real-BNB jobs settled through the full
@@ -57,6 +63,7 @@ packages/indexer/   ERC-8004 registry + ERC-8183 job indexer,
                     SSRF-hardened liveness prober, census stats (SQLite)
 packages/web/       Next.js app — marketplace, profiles, Judge Mode, census API
 packages/hire/      Open hire CLI + settle-sweeper (TypeScript, viem)
+packages/altana/    Altana scoped-session hiring CLI (session keys, spend caps)
 agents/             Provider agents (Python, bnbagent SDK)
   health-factor/    Venus position risk monitor — testnet #1822, mainnet #270183
   grid-plan/        PancakeSwap grid-trading planner — testnet #1875
