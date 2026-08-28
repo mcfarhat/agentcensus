@@ -1,0 +1,17 @@
+{
+  "name": "@agentcensus/altana",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "AgentCensus x Altana - scoped-session hiring demo on BSC testnet",
+  "scripts": {
+    "setup": "node cli.mjs setup",
+    "hire": "node cli.mjs hire",
+    "status": "node cli.mjs status",
+    "revoke": "node cli.mjs revoke"
+  },
+  "dependencies": {
+    "@altananetwork/sdk": "^0.8.0",
+    "viem": "^2.0.0"
+  }
+}

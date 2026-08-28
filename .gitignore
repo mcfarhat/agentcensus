@@ -20,3 +20,6 @@ venv/
 # agent deliverable storage + keystores
 .agent-data/
 *.keystore
+.env-altana
+packages/altana/.altana-session.json
+packages/altana/.env

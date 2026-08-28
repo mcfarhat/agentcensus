@@ -10,7 +10,7 @@ PRIVATE_KEY=0x...
 
 # --- Network ---
 NETWORK=bsc-testnet
-RPC_URL=https://data-seed-prebsc-1-s1.bnbchain.org:8545
+RPC_URL=https://bsc-testnet-rpc.publicnode.com
 
 # --- Public URL of this instance (Caddy routes /erc8183r to port 8006) ---
 ERC8183_AGENT_URL=https://agentcensus.xyz/erc8183r

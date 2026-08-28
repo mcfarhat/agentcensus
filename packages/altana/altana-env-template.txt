@@ -1,0 +1,7 @@
+# AgentCensus x Altana demo - copy to packages\altana\.env and fill in.
+# NEVER commit the real .env.
+#
+# ALTANA_ADMIN_KEY: a NEW fresh testnet key - the human "owner" of the Altana
+# smart wallet. It grants and revokes the scoped session. The relay handles
+# gas for wallet operations; no funding usually needed.
+ALTANA_ADMIN_KEY=0x...

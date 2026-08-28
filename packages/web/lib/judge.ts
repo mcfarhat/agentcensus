@@ -179,7 +179,12 @@ export function startJudgeHire(
   if (dayCount >= MAX_PER_DAY) return { ok: false, error: "Daily sponsored-hire quota reached — try tomorrow or use the CLI" };
   const last = ipLast.get(ip) ?? 0;
   if (Date.now() - last < IP_COOLDOWN_MS) return { ok: false, error: "One hire per minute — give the last one a moment" };
-  const running = [...sessions.values()].filter((s) => !["submitted", "error"].includes(s.phase));
+  // A healthy hire finishes in ~1 minute; a session stuck longer (e.g. the agent
+  // never submits) must NOT block Judge Mode forever — treat >10 min as dead.
+  const STALE_MS = 10 * 60_000;
+  const running = [...sessions.values()].filter(
+    (s) => !["submitted", "error"].includes(s.phase) && Date.now() - s.startedAt < STALE_MS,
+  );
   if (running.length >= 2) return { ok: false, error: "Two sponsored hires already in flight — try again in a minute" };
 
   let endpoint: string;
