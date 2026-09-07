@@ -56,7 +56,11 @@ protocol level (see finding 2).
 ## Honest findings (reported to the Altana team)
 
 In AgentCensus tradition, the negative results are part of the deliverable.
-Building this surfaced four real ecosystem issues, each worked around in code:
+Building this surfaced four real ecosystem issues, each worked around in code
+and filed upstream: [altana-sdk #81](https://github.com/altananetwork/altana-sdk/issues/81),
+[#82](https://github.com/altananetwork/altana-sdk/issues/82),
+[#83](https://github.com/altananetwork/altana-sdk/issues/83) and
+[bnbagent-sdk #83](https://github.com/bnb-chain/bnbagent-sdk/issues/83):
 
 1. **Relay fees come from the smart wallet's native balance.** A freshly
    created wallet has zero tBNB, so its first `execute` reverts on fees
@@ -72,6 +76,11 @@ Building this surfaced four real ecosystem issues, each worked around in code:
    `PolicyNotWhitelisted` (`0xc94463e3`). We rebuild the hire calls manually
    and bind the currently whitelisted OptimisticPolicy
    (`0xd6a42175…ad771cea`, 900 s dispute window) instead.
+   *Update Sep 7: confirmed by the Altana team on
+   [#81](https://github.com/altananetwork/altana-sdk/issues/81) — fixed
+   upstream in SDK 0.9.0 (released Sep 2); the corrected preset binds the same
+   policy our workaround uses, and a pre-flight whitelist check is planned so
+   future de-whitelistings fail with a clear error.*
 4. **Provider-side deadline mismatch.** The provider SDK computes its
    submission deadline as `expiredAt −` *its own* preset dispute window (1 day
    on testnet), not the window of the policy actually bound to the job. A job
