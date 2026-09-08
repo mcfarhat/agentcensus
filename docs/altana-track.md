@@ -66,6 +66,13 @@ and filed upstream: [altana-sdk #81](https://github.com/altananetwork/altana-sdk
    created wallet has zero tBNB, so its first `execute` reverts on fees
    (`feeToken 0x0`). Fix: `fundNative` against the testnet relay faucet as
    setup step 1b, then `waitForBalance` before proceeding.
+   *Update Sep 8, corrected by the Altana team on
+   [#83](https://github.com/altananetwork/altana-sdk/issues/83): the actual
+   revert is the KeyStore registration fee (paid in native) on the wallet's
+   first transaction, and `fundNative` turns out to be a silent no-op for
+   native — the relay faucet mints ERC-20 fee tokens only, and the helper is
+   now deprecated upstream. Our wallet was in fact funded by a manual tBNB
+   send during setup. Their PR #86 adds explanatory errors for both paths.*
 2. **Sessions must carry a native spend limit, not just token caps.** A
    session granted only a $U cap is rejected at execution with
    `NoSpendPermissions` — relay gas is itself metered spend. This is spend-cap
@@ -87,7 +94,14 @@ and filed upstream: [altana-sdk #81](https://github.com/altananetwork/altana-sdk
    whose expiry is padded only for the real 900 s window gets silently skipped
    as "deadline passed" (our first attempt, job #696, died this way). Buyers
    must over-pad: our CLI sets `expiredAt = now + disputeWindow + 48 h`.
+   *Update Sep 8: root cause refined by the Altana team on
+   [#82](https://github.com/altananetwork/altana-sdk/issues/82) — the provider
+   reads the window on-chain but from its own configured policy table, not the
+   job's bound policy; bnbagent 0.4.6 (Aug 27) ships the corrected table, and
+   Altana's PR #85 documents the buyer-side expiry formula with a
+   `deadlineSeconds` escape hatch.*
 
 Findings 3 and 4 mirror what our census sees at scale on mainnet — a whole
 class of ERC-8183 jobs that can never complete because expiry and dispute
-windows disagree. The tooling that found them is the marketplace itself.
+windows disagree at creation time. The tooling that found them is the
+marketplace itself.
