@@ -2,8 +2,9 @@
 
 **The open marketplace — and the honest census — of BNB Chain's agent economy.**
 
-AgentCensus indexes every ERC-8004 agent registration on BSC (270k+ on mainnet),
-probes each declared endpoint continuously to find out what's actually real
+AgentCensus indexes every ERC-8004 agent registration on BSC (335,000+ on
+mainnet and climbing by thousands a day), probes each declared endpoint
+continuously to find out what's actually real
 (~0.1% of registered agents are alive), and turns that honest index into a
 working marketplace: verified discovery, one-click hiring, and trustless
 ERC-8183 settlement — live on **testnet and mainnet**.
@@ -48,7 +49,9 @@ step, in about a minute.
   grants a session key a narrow on-chain mandate (contract allowlist, 5 $U/day
   spend cap, 7-day expiry, Keystore-registered) and that key runs full
   hire → deliver → settle lifecycles against our agents. Four ecosystem bugs
-  found and documented along the way.
+  found along the way — reported upstream and confirmed by the Altana team,
+  with fixes shipped or queued
+  ([details](docs/altana-track.md)).
 - **Provider agents** (Python, official bnbagent SDK) covering **all four
   marketplace categories**: a Venus health-factor monitor (health factor; live
   on testnet **and mainnet**, with real-BNB jobs settled through the full
@@ -67,8 +70,11 @@ packages/altana/    Altana scoped-session hiring CLI (session keys, spend caps)
 agents/             Provider agents (Python, bnbagent SDK)
   health-factor/    Venus position risk monitor — testnet #1822, mainnet #270183
   grid-plan/        PancakeSwap grid-trading planner — testnet #1875
+  rebalance-plan/   Portfolio rebalance planner — testnet #2000
+  yield-scan/       Venus yield scanner + PCS LP analyzer — testnet #2001
 scripts/            Server setup, hourly refresh cron, chain verification
-docs/               Submission documents (video, TermiX report + packet)
+docs/               Submission docs (video, TermiX report + packet,
+                    PancakeSwap + Altana track write-ups)
 ```
 
 ## Quick start
@@ -113,10 +119,16 @@ Full addresses, ABIs and selectors: `packages/indexer/src/config.ts` / `abi.ts`.
 ## Honest findings
 
 A marketplace built on a census should report its own negative results too:
-of ~270k mainnet registrations our probes find only ~0.1% alive; one provider
+of ~335k mainnet registrations our probes find only ~0.1% alive; one provider
 accounts for >99% of mainnet job volume; ~27k mainnet jobs sit permanently
 stuck in SUBMITTED; and a class of jobs can never complete because their
 expiry predates the arbitration policy's dispute window (our hire CLI derives
-expiry from the policy for exactly this reason). Details, with transaction
-evidence, in the [TermiX report](docs/termix-agent-advantage-report.pdf) and
-the [census](https://agentcensus.xyz/state-of-the-agent-economy.html).
+expiry from the policy for exactly this reason). Building on the standards
+surfaced four more ecosystem bugs, filed upstream
+([altana-sdk #81–83](https://github.com/altananetwork/altana-sdk/issues/81),
+[bnbagent-sdk #83](https://github.com/bnb-chain/bnbagent-sdk/issues/83)) and
+confirmed by the SDK teams, with fixes shipped or queued. Details, with
+transaction evidence, in the
+[TermiX report](docs/termix-agent-advantage-report.pdf), the
+[Altana write-up](docs/altana-track.md) and the
+[census](https://agentcensus.xyz/state-of-the-agent-economy.html).
